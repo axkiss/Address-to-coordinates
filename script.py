@@ -2,12 +2,16 @@ import sys
 
 from sqlalchemy.exc import OperationalError
 from services.database import DataBaseManager
+from services.utils import input_or_exit as input
 
 
 def get_settings_from_input() -> dict:
     """Ведет диалог с пользователем для получения настроек"""
 
     settings = dict()
+    print('-' * 15)
+    print('   НАСТРОЙКА   ')
+    print('-' * 15)
     print('Чтобы оставить настройку по умолчанию нажимайте "Enter".')
 
     base_url = input('Введите базовый URL к сервису dadata:').strip()
@@ -37,13 +41,25 @@ def get_settings_from_input() -> dict:
     return settings
 
 
-if __name__ == '__main__':
+def print_settings(dict_settings: dict) -> None:
+    """Печатает переданные настройки"""
+
+    print('-' * 15)
+    for key, value in dict_settings.items():
+        print(key + ' : ' + value)
+    print('-' * 15)
+
+
+def main():
+    # Подключаем базу данных для хранения настроек
     settings = DataBaseManager('DaData_settings')
 
+    # Используем найденные настройки или запрашиваем новые
     if settings.is_table_exists():
         try:
             settings_from_db = settings.get_values()
-            print('Обнаружены настройки!', settings_from_db)
+            print('Обнаружены настройки!')
+            print_settings(settings_from_db)
             ans = input('Использовать? (Да/Нет):').strip().lower()
             while ans not in ('да', 'нет'):
                 print('Введите "Да" или "Нет"')
@@ -67,4 +83,11 @@ if __name__ == '__main__':
         settings.insert_values(get_settings_from_input())
         settings_from_db = settings.get_values()
 
-    print(settings_from_db)
+    print_settings(settings_from_db)
+
+
+if __name__ == '__main__':
+    print('Привет, User!\n'
+          'Данный скрипт поможет найти координаты (долгота, широта) введенного адреса.\n'
+          'Если захочешь закрыть скрипт, то напиши "Выйти"\n')
+    main()
