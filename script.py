@@ -1,8 +1,11 @@
 import sys
+import re
 
 from sqlalchemy.exc import OperationalError
+
 from services.database import DataBaseManager
 from services.utils import input_or_exit as input
+from services.dadata_API import SuggestClient
 
 
 def get_settings_from_input() -> dict:
@@ -14,15 +17,26 @@ def get_settings_from_input() -> dict:
     print('-' * 15)
     print('Чтобы оставить настройку по умолчанию нажимайте "Enter".')
 
-    base_url = input('Введите базовый URL к сервису dadata:').strip()
-    if base_url:
-        settings['base_url'] = base_url
+    url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+    while True:
+        base_url = input('Введите базовый URL к сервису dadata:').strip()
+        if base_url:
+            if re.fullmatch(url_pattern, base_url):
+                settings['base_url'] = base_url
+                break
+            else:
+                print("Введите URL вида 'https://suggestions.dadata.ru/'")
+        else:
+            break
 
     while True:
         api_key = input('Введите API ключ для сервиса dadata:').strip()
         if api_key:
-            settings['API_key'] = api_key
-            break
+            if re.fullmatch('^[A-Za-z0-9]+$', api_key):
+                settings['API_key'] = api_key
+                break
+            else:
+                print('API ключ должен содержать только цифры и буквы a-z')
         else:
             print('API ключ не имеет значения по умолчанию!')
 
