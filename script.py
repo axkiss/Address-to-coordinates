@@ -43,7 +43,7 @@ def get_settings_from_input() -> dict:
     while True:
         print('Выберете язык, на котором должен возвращаться ответ от dadata:')
         print("""1. ru - по умолчанию\n2. en""")
-        language = input('Ваш выбор:').strip()
+        language = input('Ваш выбор (1/2):').strip()
         if not language: break
         if language.isdecimal():
             int_language = int(language)
@@ -97,7 +97,33 @@ def main():
         settings.insert_values(get_settings_from_input())
         settings_from_db = settings.get_values()
 
-    print_settings(settings_from_db)
+    # Подключение к API DaData
+    dadata = SuggestClient(settings_from_db['base_url'], settings_from_db['API_key'], settings_from_db['language'])
+
+    # Обработка введенного адреса
+    while True:
+        query = input('Введите адрес для поиска:').strip()
+        if not query:
+            continue
+        result_list = dadata.address_list(query)
+        if not result_list:
+            print('Похоже ничего не найдено :(. Попробуйте еще раз.')
+            continue
+        for i, address in enumerate(result_list, 1):
+            print(f'{i}. {address}')
+
+        while True:
+            num = input(f'Выберите подходящий номер от 1 до {len(result_list)} включительно:')
+            if num and num.isdecimal() and 1 <= int(num) <= len(result_list):
+                x, y = dadata.get_coordinates(result_list[int(num) - 1])
+                print('\n' + '-' * 15)
+                print(result_list[int(num) - 1])
+                print(f'Долгота: {x}, широта: {y}')
+                print('-' * 15 + '\n')
+                break
+            else:
+                print(f'Необходимо выбрать цифру от 1 до {len(result_list)} включительно.')
+                continue
 
 
 if __name__ == '__main__':
