@@ -52,7 +52,7 @@ class SuggestClient:
         return [suggest['value'] for suggest in suggestions]
 
     def get_coordinates(self, query: str) -> tuple:
-        """Координаты запроса (долгота, широта)"""
+        """Координаты запроса (широта, долгота)"""
 
         suggestions = self.suggest(query, count=1)
         if suggestions:
