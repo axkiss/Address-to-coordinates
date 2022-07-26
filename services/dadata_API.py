@@ -19,28 +19,29 @@ class SuggestClient:
 
     TIMEOUT_SEC = 10
 
-    def __init__(self, base_url, token: str):
+    def __init__(self, base_url: str, token: str, language: str):
         self.base_url = base_url
         self.headers = {
             "Content-type": "application/json",
             "Accept": "application/json",
             "Authorization": f"Token {token}",
         }
+        self.language = language
 
-    def suggest(self, query: str, language: str = 'ru', count: int = 10) -> list[dict]:
+    def suggest(self, query: str, count: int = 10) -> list[dict]:
         """Список похожих адресов с подробными данными"""
 
         body = {"query": query,
                 "count": count,
-                "language": language}
+                "language": self.language}
         response = self._post(self.base_url, json=body, headers=self.headers)
         suggestions = response.json()['suggestions']
         return suggestions
 
-    def address_list(self, query: str, language: str = 'ru', count: int = 10) -> list[str]:
+    def address_list(self, query: str, count: int = 10) -> list[str]:
         """Список похожих адресов"""
 
-        suggestions = self.suggest(query, language, count)
+        suggestions = self.suggest(query, count)
         return [suggest['value'] for suggest in suggestions]
 
     def get_coordinates(self, query: str) -> tuple:
@@ -62,7 +63,7 @@ class SuggestClient:
             response.raise_for_status()
         except requests.exceptions.HTTPError:
             code = 500 if response.status_code >= 500 else response.status_code
-            print('Произошла ошибка!')
+            print('\n\nПроизошла ошибка!')
             print('-' * 15)
             print(HTTP_codes.get(code, f'Неизвестная ошибка: {response.status_code}'))
             print('-' * 15)
