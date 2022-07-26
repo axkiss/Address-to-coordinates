@@ -35,7 +35,14 @@ class SuggestClient:
                 "count": count,
                 "language": self.language}
         response = self._post(self.base_url, json=body, headers=self.headers)
-        suggestions = response.json()['suggestions']
+
+        try:
+            suggestions = response.json()['suggestions']
+        except requests.exceptions.JSONDecodeError:
+            print('Неверный URL к сервису dadata')
+            print('Попробуйте перезапустить скрипт и заново произвести настройку.')
+            sys.exit(1)
+
         return suggestions
 
     def address_list(self, query: str, count: int = 10) -> list[str]:
@@ -58,7 +65,14 @@ class SuggestClient:
 
     def _post(self, url, json, headers):
         """Выполнения метода POST"""
-        response = requests.post(url, json=json, headers=headers, timeout=self.TIMEOUT_SEC)
+
+        try:
+            response = requests.post(url, json=json, headers=headers, timeout=self.TIMEOUT_SEC)
+        except requests.exceptions.ConnectionError:
+            print('Неверный URL к сервису dadata')
+            print('Попробуйте перезапустить скрипт и заново произвести настройку.')
+            sys.exit(1)
+
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError:
@@ -69,4 +83,5 @@ class SuggestClient:
             print('-' * 15)
             print('Попробуйте перезапустить скрипт и заново произвести настройку.')
             sys.exit(1)
+
         return response
