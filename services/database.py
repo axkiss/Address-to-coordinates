@@ -49,6 +49,7 @@ class DataBaseManager:
             with Session.begin() as session:
                 session.add(Setting(**values))
             print(f'Настройки успешно сохранены.')
+            print('-' * 15)
         except Exception as err:
             print(err)
             print(f'Не удалось добавить настройки')
