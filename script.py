@@ -79,7 +79,7 @@ def main():
                 print('Введите "Да" или "Нет"')
                 ans = input('Использовать? (Да/Нет):').strip().lower()
 
-            if ans.strip().lower() == 'нет':
+            if ans == 'нет':
                 settings.create_table()
                 settings.insert_values(get_settings_from_input())
                 settings_from_db = settings.get_values()
@@ -115,10 +115,10 @@ def main():
         while True:
             num = input(f'Выберите подходящий номер от 1 до {len(result_list)} включительно:')
             if num and num.isdecimal() and 1 <= int(num) <= len(result_list):
-                x, y = dadata.get_coordinates(result_list[int(num) - 1])
+                lat, lon = dadata.get_coordinates(result_list[int(num) - 1])
                 print('\n' + '-' * 15)
                 print(result_list[int(num) - 1])
-                print(f'Широта: {x}, долгота: {y}')
+                print(f'Широта: {lat}, долгота: {lon}')
                 print('-' * 15 + '\n')
                 break
             else:
